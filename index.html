@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hex to HSL Converter – Minimal tool for designers</title>
+  <meta name="description" content="Instant Hex to HSL (and RGB) converter with live preview and palette generator.">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-content">
+      <h1>Hex to HSL Converter</h1>
+      <p class="subtitle">Instant, minimalist color tool with auto-generated palette</p>
+    </div>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <span class="sun">☀️</span>
+        <span class="moon">🌙</span>
+      </button>
+  </header>
+
+  <!-- MAIN PANELS -->
+  <main class="main-content">
+    <section class="panel left-panel">
+      <div class="input-container">
+        <input type="text" id="hexInput" value="#4299E1" maxlength="7" class="hex-input" oninput="updateConversion()">
+        <input type="color" id="colorPicker" value="#4299E1" class="color-picker" oninput="updateConversion(this.value, 'picker')">
+      </div>
+
+      <div id="colorSwatch" class="swatch"></div>
+
+      <!-- PALETTE STRIP -->
+      <div class="palette-strip">
+        <div class="palette-swatch" data-step="-40"></div>
+        <div class="palette-swatch" data-step="-25"></div>
+        <div class="palette-swatch" data-step="-10"></div>
+        <div class="palette-swatch active" data-step="0"></div>
+        <div class="palette-swatch" data-step="10"></div>
+        <div class="palette-swatch" data-step="25"></div>
+        <div class="palette-swatch" data-step="40"></div>
+      </div>
+
+      <div class="overlay-text">
+        <div id="bigHex" class="big-hex">#4299E1</div>
+        <div id="bigHsl" class="big-hsl">hsl(207, 72%, 57%)</div>
+      </div>
+    </section>
+
+    <section class="panel right-panel">
+      <div class="output-container">
+        <h2>Converted Values</h2>
+
+        <div class="output-row">
+          <label>HSL</label>
+          <div class="input-with-btn">
+            <input type="text" id="hslOutput" readonly value="hsl(207, 72%, 57%)">
+            <button onclick="copyToClipboard('hslOutput', this)">Copy</button>
+          </div>
+        </div>
+
+        <div class="output-row">
+          <label>RGB</label>
+          <div class="input-with-btn">
+            <input type="text" id="rgbOutput" readonly value="rgb(66, 153, 225)">
+            <button onclick="copyToClipboard('rgbOutput', this)">Copy</button>
+          </div>
+        </div>
+
+        <div class="tip">
+          <p><strong>Pro tip:</strong> Click any swatch in the palette to jump to that shade instantly!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    // ———————— Dark Mode Toggle (safe & persistent) ————————
+    const toggle = document.getElementById('themeToggle');
+    const body = document.body;
+    
+    // 1. Load saved preference or system setting
+    if (localStorage.getItem('theme') === 'dark' || 
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      body.classList.add('dark');
+    }
+    
+    // 2. Click handler
+    toggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+    });
+    
+    // ———————— Your original script continues here (unchanged) ————————
+    const original = updateConversion;
+    updateConversion = function(value, source) {
+      original(value, source);
+      const hex = document.getElementById('hexInput').value.trim() || '#4299E1';
+      const clean = hex.startsWith('#') ? hex : '#' + hex;
+      if (hexToRgb(clean)) {
+        document.getElementById('bigHex').textContent = clean.toUpperCase();
+        document.getElementById('bigHsl').textContent = document.getElementById('hslOutput').value;
+      }
+    };
+    updateConversion();
+    </script>
+</body>
+</html>
